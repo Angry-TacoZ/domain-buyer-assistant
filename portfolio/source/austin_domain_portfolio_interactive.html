@@ -1,0 +1,177 @@
+
+<div id="domainApp">
+  <style>
+    #domainApp { color: var(--viz-text); font-family: ui-sans-serif, system-ui, sans-serif; }
+    #domainApp .hero { display:grid; gap:14px; grid-template-columns:repeat(4,minmax(0,1fr)); margin-bottom:18px; }
+    #domainApp .kpi { background:var(--viz-card); border:1px solid var(--viz-border); border-radius:14px; padding:15px; }
+    #domainApp .kpi .label { color:var(--viz-muted); font-size:12px; }
+    #domainApp .kpi .value { font-size:22px; font-weight:750; margin-top:4px; letter-spacing:-.02em; }
+    #domainApp .note { border-left:4px solid var(--viz-series-3); background:var(--viz-panel); padding:12px 14px; border-radius:10px; margin-bottom:18px; font-size:13px; line-height:1.45; }
+    #domainApp .controls { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:10px; margin:14px 0; }
+    #domainApp input,#domainApp select { width:100%; border:1px solid var(--viz-border); background:var(--viz-card); color:var(--viz-text); border-radius:10px; padding:10px 12px; min-height:44px; }
+    #domainApp .layout { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr); gap:14px; align-items:start; }
+    #domainApp .tableWrap { border:1px solid var(--viz-border); border-radius:14px; overflow:auto; max-height:600px; background:var(--viz-card); }
+    #domainApp table { width:100%; border-collapse:collapse; min-width:720px; font-size:13px; }
+    #domainApp th { position:sticky; top:0; background:var(--viz-panel); color:var(--viz-muted); text-align:left; padding:11px 10px; border-bottom:1px solid var(--viz-border); z-index:1; }
+    #domainApp td { padding:11px 10px; border-bottom:1px solid var(--viz-border); vertical-align:middle; }
+    #domainApp tbody tr { cursor:pointer; }
+    #domainApp tbody tr[aria-selected="true"] { background:var(--viz-accent-bg); }
+    #domainApp tbody tr:focus { outline:2px solid var(--viz-accent); outline-offset:-2px; }
+    #domainApp .pill { display:inline-block; border:1px solid var(--viz-border); border-radius:999px; padding:3px 7px; font-size:11px; }
+    #domainApp .ratioBar { height:7px; border-radius:99px; background:var(--viz-border); overflow:hidden; min-width:80px; }
+    #domainApp .ratioBar span { display:block; height:100%; background:var(--viz-series-4); }
+    #domainApp .detail { border:1px solid var(--viz-border); border-radius:14px; background:var(--viz-card); padding:16px; position:sticky; top:8px; }
+    #domainApp .detail h3 { font-size:19px; margin:0 0 4px; overflow-wrap:anywhere; }
+    #domainApp .muted { color:var(--viz-muted); }
+    #domainApp .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    #domainApp .metric { background:var(--viz-panel); border-radius:10px; padding:10px; }
+    #domainApp .metric b { display:block; font-size:16px; margin-top:2px; }
+    #domainApp .lens { margin-top:14px; padding-top:14px; border-top:1px solid var(--viz-border); }
+    #domainApp .lens strong { display:block; margin-bottom:5px; }
+    #domainApp .foot { margin-top:12px; font-size:11px; color:var(--viz-muted); line-height:1.45; }
+    #domainApp .empty { padding:30px; text-align:center; color:var(--viz-muted); }
+    @media (max-width:760px) {
+      #domainApp .hero { grid-template-columns:1fr 1fr; }
+      #domainApp .controls { grid-template-columns:1fr 1fr; }
+      #domainApp .layout { grid-template-columns:1fr; }
+      #domainApp .detail { position:static; }
+    }
+    @media (max-width:430px) {
+      #domainApp .hero { grid-template-columns:1fr; }
+      #domainApp .controls { grid-template-columns:1fr; }
+    }
+  </style>
+
+  <div class="hero">
+    <div class="kpi"><div class="label">Domains analyzed</div><div class="value">94</div></div>
+    <div class="kpi"><div class="label">Total asking price</div><div class="value">$306,607</div></div>
+    <div class="kpi"><div class="label">NamesLink midpoint total</div><div class="value">$72,720</div></div>
+    <div class="kpi"><div class="label">Ask / appraisal total</div><div class="value">4.22×</div></div>
+  </div>
+
+  <div class="note">
+    <b>Purpose:</b> portfolio screening, not a final valuation. NamesLink is one automated appraisal model. The useful question is where Austin's pricing differs enough from an outside benchmark to justify deeper buyer-market research.
+  </div>
+
+  <div class="controls">
+    <input id="q" aria-label="Search domains" placeholder="Search domain or TLD…">
+    <select id="city" aria-label="Filter by city"><option value="">All locations</option></select>
+    <select id="gap" aria-label="Filter by pricing gap">
+      <option value="">All pricing gaps</option>
+      <option value="under">At or below appraisal</option>
+      <option value="2">≤ 2× midpoint</option>
+      <option value="5">2–5× midpoint</option>
+      <option value="10">5–10× midpoint</option>
+      <option value="high">> 10× midpoint</option>
+    </select>
+    <select id="sort" aria-label="Sort domains">
+      <option value="ratioDesc">Highest premium</option>
+      <option value="ratioAsc">Lowest premium</option>
+      <option value="scoreDesc">Highest NamesLink score</option>
+      <option value="askDesc">Highest asking price</option>
+      <option value="domain">Domain A–Z</option>
+    </select>
+  </div>
+
+  <div class="layout">
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Ask</th><th>Appraisal</th><th>Gap</th><th>Score</th><th>Location</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div id="empty" class="empty" hidden>No domains match the current filters.</div>
+    </div>
+
+    <aside class="detail" id="detail" aria-live="polite">
+      <div class="muted">Select a domain to inspect it.</div>
+    </aside>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('domainApp');
+      if (root.dataset.ready) return;
+      root.dataset.ready='1';
+      const data = [{"domain":"Branson.vacations","city":"Branson","region":"Missouri","ask":19999.0,"lease":4999.0,"tld":"vacations","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":66.6633,"commission":6599.67},{"domain":"Branson.apartments","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"apartments","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":16.6633,"commission":1649.67},{"domain":"Branson.builders","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"builders","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":16.6633,"commission":1649.67},{"domain":"Branson.construction","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"construction","score":44.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":33.3267,"commission":1649.67},{"domain":"Branson.contractors","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"contractors","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":16.6633,"commission":1649.67},{"domain":"Branson.lease","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"lease","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":16.6633,"commission":1649.67},{"domain":"Branson.legal","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"legal","score":61.0,"level":"Above Average","range":"$1,500 - $3,000","mid":2250.0,"ratio":2.2218,"commission":1649.67},{"domain":"Branson.loans","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"loans","score":51.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":8.3317,"commission":1649.67},{"domain":"Branson.marketing","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"marketing","score":54.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":8.3317,"commission":1649.67},{"domain":"Branson.mortgage","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"mortgage","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":16.6633,"commission":1649.67},{"domain":"Branson.properties","city":"Branson","region":"Missouri","ask":4999.0,"lease":1999.0,"tld":"properties","score":52.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":8.3317,"commission":1649.67},{"domain":"DesMoines.loans","city":"Des Moines","region":"Iowa","ask":4999.0,"lease":1999.0,"tld":"loans","score":41.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":33.3267,"commission":1649.67},{"domain":"DesMoines.plumbing","city":"Des Moines","region":"Iowa","ask":4999.0,"lease":1999.0,"tld":"plumbing","score":36.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":66.6533,"commission":1649.67},{"domain":"DesMoines.solar","city":"Des Moines","region":"Iowa","ask":4999.0,"lease":1999.0,"tld":"solar","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":142.8286,"commission":1649.67},{"domain":"Manila.lease","city":"Manila","region":"Metro Manila","ask":4999.0,"lease":1999.0,"tld":"lease","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":8.3317,"commission":1649.67},{"domain":"Manila.solar","city":"Manila","region":"Metro Manila","ask":4999.0,"lease":1999.0,"tld":"solar","score":60.0,"level":"Above Average","range":"$1,500 - $3,000","mid":2250.0,"ratio":2.2218,"commission":1649.67},{"domain":"NewYorkCity.beer","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"beer","score":41.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":33.3267,"commission":1649.67},{"domain":"NewYorkCity.clothing","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"clothing","score":33.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":142.8286,"commission":1649.67},{"domain":"NewYorkCity.credit","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"credit","score":35.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":66.6533,"commission":1649.67},{"domain":"NewYorkCity.engineering","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"engineering","score":33.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":142.8286,"commission":1649.67},{"domain":"NewYorkCity.finance","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"finance","score":49.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":16.6633,"commission":1649.67},{"domain":"NewYorkCity.insure","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"insure","score":35.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":66.6533,"commission":1649.67},{"domain":"NewYorkCity.land","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"land","score":41.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":33.3267,"commission":1649.67},{"domain":"NewYorkCity.llc","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"llc","score":50.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":8.3317,"commission":1649.67},{"domain":"NewYorkCity.loans","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"loans","score":39.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":66.6533,"commission":1649.67},{"domain":"NewYorkCity.management","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"management","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":142.8286,"commission":1649.67},{"domain":"NewYorkCity.marketing","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"marketing","score":43.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":33.3267,"commission":1649.67},{"domain":"NewYorkCity.productions","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"productions","score":33.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":142.8286,"commission":1649.67},{"domain":"NewYorkCity.repair","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"repair","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":142.8286,"commission":1649.67},{"domain":"NewYorkCity.salon","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"salon","score":35.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":66.6533,"commission":1649.67},{"domain":"NewYorkCity.tattoo","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"tattoo","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":142.8286,"commission":1649.67},{"domain":"NewYorkCity.taxi","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"taxi","score":35.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":66.6533,"commission":1649.67},{"domain":"NewYorkCity.tires","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"tires","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":142.8286,"commission":1649.67},{"domain":"NewYorkCity.tools","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"tools","score":40.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":33.3267,"commission":1649.67},{"domain":"NewYorkCity.villas","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"villas","score":35.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":66.6533,"commission":1649.67},{"domain":"NewYorkCity.watch","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"watch","score":40.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":33.3267,"commission":1649.67},{"domain":"NewYorkCity.works","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"works","score":40.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":33.3267,"commission":1649.67},{"domain":"NYC.camera","city":"New York City","region":"New York","ask":4999.0,"lease":1999.0,"tld":"camera","score":73.0,"level":"Good Plus","range":"$5,000 - $15,000","mid":10000.0,"ratio":0.4999,"commission":1649.67},{"domain":"Branson.credit","city":"Branson","region":"Missouri","ask":2999.0,"lease":1199.0,"tld":"credit","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":9.9967,"commission":989.67},{"domain":"Branson.management","city":"Branson","region":"Missouri","ask":2999.0,"lease":1199.0,"tld":"management","score":45.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":9.9967,"commission":989.67},{"domain":"Branson.party","city":"Branson","region":"Missouri","ask":2999.0,"lease":1199.0,"tld":"party","score":44.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":19.9933,"commission":989.67},{"domain":"DesMoines.insure","city":"Des Moines","region":"Iowa","ask":2999.0,"lease":1199.0,"tld":"insure","score":36.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":39.9867,"commission":989.67},{"domain":"DesMoines.restaurant","city":"Des Moines","region":"Iowa","ask":2999.0,"lease":1199.0,"tld":"restaurant","score":43.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":19.9933,"commission":989.67},{"domain":"DesMoines.vision","city":"Des Moines","region":"Iowa","ask":2999.0,"lease":1199.0,"tld":"vision","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":85.6857,"commission":989.67},{"domain":"DesMoines.wine","city":"Des Moines","region":"Iowa","ask":2999.0,"lease":1199.0,"tld":"wine","score":42.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":19.9933,"commission":989.67},{"domain":"Manila.apartments","city":"Manila","region":"Metro Manila","ask":2999.0,"lease":1199.0,"tld":"apartments","score":54.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":4.9983,"commission":989.67},{"domain":"Manila.holiday","city":"Manila","region":"Metro Manila","ask":2999.0,"lease":1199.0,"tld":"holiday","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":4.9983,"commission":989.67},{"domain":"Manila.loans","city":"Manila","region":"Metro Manila","ask":2999.0,"lease":1199.0,"tld":"loans","score":59.0,"level":"Average Plus","range":"$800 - $1,500","mid":1150.0,"ratio":2.6078,"commission":989.67},{"domain":"Manila.shopping","city":"Manila","region":"Metro Manila","ask":2999.0,"lease":1199.0,"tld":"shopping","score":60.0,"level":"Above Average","range":"$1,500 - $3,000","mid":2250.0,"ratio":1.3329,"commission":989.67},{"domain":"NewYorkCity.florist","city":"New York City","region":"New York","ask":2999.0,"lease":1199.0,"tld":"florist","score":35.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":39.9867,"commission":989.67},{"domain":"NewYorkCity.gifts","city":"New York City","region":"New York","ask":2999.0,"lease":1199.0,"tld":"gifts","score":35.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":39.9867,"commission":989.67},{"domain":"NewYorkCity.host","city":"New York City","region":"New York","ask":2999.0,"lease":1199.0,"tld":"host","score":41.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":19.9933,"commission":989.67},{"domain":"NewYorkCity.toys","city":"New York City","region":"New York","ask":2999.0,"lease":1199.0,"tld":"toys","score":35.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":39.9867,"commission":989.67},{"domain":"Branson.doctor","city":"Branson","region":"Missouri","ask":1999.0,"lease":799.0,"tld":"doctor","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":6.6633,"commission":659.67},{"domain":"Branson.plumbing","city":"Branson","region":"Missouri","ask":1999.0,"lease":799.0,"tld":"plumbing","score":46.0,"level":"Below Average","range":"$200 - $400","mid":300.0,"ratio":6.6633,"commission":659.67},{"domain":"DesMoines.agency","city":"Des Moines","region":"Iowa","ask":1999.0,"lease":799.0,"tld":"agency","score":52.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":3.3317,"commission":659.67},{"domain":"DesMoines.cafe","city":"Des Moines","region":"Iowa","ask":1999.0,"lease":799.0,"tld":"cafe","score":43.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":13.3267,"commission":659.67},{"domain":"DesMoines.credit","city":"Des Moines","region":"Iowa","ask":1999.0,"lease":799.0,"tld":"credit","score":36.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":26.6533,"commission":659.67},{"domain":"DesMoines.engineer","city":"Des Moines","region":"Iowa","ask":1999.0,"lease":799.0,"tld":"engineer","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":57.1143,"commission":659.67},{"domain":"DesMoines.engineering","city":"Des Moines","region":"Iowa","ask":1999.0,"lease":799.0,"tld":"engineering","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":57.1143,"commission":659.67},{"domain":"DesMoines.pet","city":"Des Moines","region":"Iowa","ask":1999.0,"lease":799.0,"tld":"pet","score":42.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":13.3267,"commission":659.67},{"domain":"Manila.doctor","city":"Manila","region":"Metro Manila","ask":1999.0,"lease":799.0,"tld":"doctor","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":3.3317,"commission":659.67},{"domain":"Manila.marketing","city":"Manila","region":"Metro Manila","ask":1999.0,"lease":799.0,"tld":"marketing","score":61.0,"level":"Above Average","range":"$1,500 - $3,000","mid":2250.0,"ratio":0.8884,"commission":659.67},{"domain":"NewYorkCity.solutions","city":"New York City","region":"New York","ask":1999.0,"lease":799.0,"tld":"solutions","score":51.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":3.3317,"commission":659.67},{"domain":"Branson.autos","city":"Branson","region":"Missouri","ask":1499.0,"lease":599.0,"tld":"autos","score":61.0,"level":"Above Average","range":"$1,500 - $3,000","mid":2250.0,"ratio":0.6662,"commission":494.67},{"domain":"Branson.beauty","city":"Branson","region":"Missouri","ask":1499.0,"lease":599.0,"tld":"beauty","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":2.4983,"commission":494.67},{"domain":"Branson.business","city":"Branson","region":"Missouri","ask":1499.0,"lease":599.0,"tld":"business","score":52.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":2.4983,"commission":494.67},{"domain":"Branson.motorcycles","city":"Branson","region":"Missouri","ask":1499.0,"lease":599.0,"tld":"motorcycles","score":52.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":2.4983,"commission":494.67},{"domain":"Branson.tattoo","city":"Branson","region":"Missouri","ask":1499.0,"lease":599.0,"tld":"tattoo","score":44.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":9.9933,"commission":494.67},{"domain":"DesMoines.beer","city":"Des Moines","region":"Iowa","ask":1499.0,"lease":599.0,"tld":"beer","score":43.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":9.9933,"commission":494.67},{"domain":"DesMoines.digital","city":"Des Moines","region":"Iowa","ask":1499.0,"lease":599.0,"tld":"digital","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":2.4983,"commission":494.67},{"domain":"DesMoines.dog","city":"Des Moines","region":"Iowa","ask":1499.0,"lease":599.0,"tld":"dog","score":41.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":9.9933,"commission":494.67},{"domain":"DesMoines.garden","city":"Des Moines","region":"Iowa","ask":1499.0,"lease":599.0,"tld":"garden","score":42.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":9.9933,"commission":494.67},{"domain":"DesMoines.golf","city":"Des Moines","region":"Iowa","ask":1499.0,"lease":599.0,"tld":"golf","score":42.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":9.9933,"commission":494.67},{"domain":"DesMoines.tattoo","city":"Des Moines","region":"Iowa","ask":1499.0,"lease":599.0,"tld":"tattoo","score":34.0,"level":"Poor","range":"$20 - $50","mid":35.0,"ratio":42.8286,"commission":494.67},{"domain":"Manila.engineer","city":"Manila","region":"Metro Manila","ask":1499.0,"lease":599.0,"tld":"engineer","score":51.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":2.4983,"commission":494.67},{"domain":"Manila.salon","city":"Manila","region":"Metro Manila","ask":1499.0,"lease":599.0,"tld":"salon","score":61.0,"level":"Above Average","range":"$1,500 - $3,000","mid":2250.0,"ratio":0.6662,"commission":494.67},{"domain":"Manila.tires","city":"Manila","region":"Metro Manila","ask":1499.0,"lease":599.0,"tld":"tires","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":2.4983,"commission":494.67},{"domain":"NewYorkCity.pics","city":"New York City","region":"New York","ask":1499.0,"lease":599.0,"tld":"pics","score":42.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":9.9933,"commission":494.67},{"domain":"CouncilBluffs.homes","city":"Council Bluffs","region":"Iowa","ask":1000.0,"lease":399.0,"tld":"homes","score":36.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":13.3333,"commission":330.0},{"domain":"Branson.baby","city":"Branson","region":"Missouri","ask":799.0,"lease":399.0,"tld":"baby","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":1.3317,"commission":263.67},{"domain":"Branson.hair","city":"Branson","region":"Missouri","ask":799.0,"lease":399.0,"tld":"hair","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":1.3317,"commission":263.67},{"domain":"Branson.ink","city":"Branson","region":"Missouri","ask":799.0,"lease":399.0,"tld":"ink","score":54.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":1.3317,"commission":263.67},{"domain":"Branson.makeup","city":"Branson","region":"Missouri","ask":799.0,"lease":399.0,"tld":"makeup","score":54.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":1.3317,"commission":263.67},{"domain":"Branson.rest","city":"Branson","region":"Missouri","ask":799.0,"lease":399.0,"tld":"rest","score":56.0,"level":"Average Plus","range":"$800 - $1,500","mid":1150.0,"ratio":0.6948,"commission":263.67},{"domain":"Branson.skin","city":"Branson","region":"Missouri","ask":799.0,"lease":399.0,"tld":"skin","score":61.0,"level":"Above Average","range":"$1,500 - $3,000","mid":2250.0,"ratio":0.3551,"commission":263.67},{"domain":"DesMoines.boutique","city":"Des Moines","region":"Iowa","ask":799.0,"lease":399.0,"tld":"boutique","score":41.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":5.3267,"commission":263.67},{"domain":"DesMoines.company","city":"Des Moines","region":"Iowa","ask":799.0,"lease":399.0,"tld":"company","score":51.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":1.3317,"commission":263.67},{"domain":"DesMoines.lol","city":"Des Moines","region":"Iowa","ask":799.0,"lease":399.0,"tld":"lol","score":43.0,"level":"Fair","range":"$100 - $200","mid":150.0,"ratio":5.3267,"commission":263.67},{"domain":"DesMoines.pro","city":"Des Moines","region":"Iowa","ask":799.0,"lease":399.0,"tld":"pro","score":37.0,"level":"Weak","range":"$50 - $100","mid":75.0,"ratio":10.6533,"commission":263.67},{"domain":"DesMoines.space","city":"Des Moines","region":"Iowa","ask":799.0,"lease":399.0,"tld":"space","score":56.0,"level":"Average Plus","range":"$800 - $1,500","mid":1150.0,"ratio":0.6948,"commission":263.67},{"domain":"DesMoines.website","city":"Des Moines","region":"Iowa","ask":799.0,"lease":399.0,"tld":"website","score":53.0,"level":"Average","range":"$400 - $800","mid":600.0,"ratio":1.3317,"commission":263.67},{"domain":"Manila.agency","city":"Manila","region":"Metro Manila","ask":799.0,"lease":399.0,"tld":"agency","score":75.0,"level":"Very Good","range":"$10,000 - $30,000","mid":20000.0,"ratio":0.0399,"commission":263.67},{"domain":"Manila.farm","city":"Manila","region":"Metro Manila","ask":799.0,"lease":399.0,"tld":"farm","score":60.0,"level":"Above Average","range":"$1,500 - $3,000","mid":2250.0,"ratio":0.3551,"commission":263.67}];
+      const $ = id => root.querySelector('#'+id);
+      const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
+      const ratioLabel = r => r < 1 ? 'Below midpoint' : r <= 2 ? 'Near benchmark' : r <= 5 ? 'Moderate premium' : r <= 10 ? 'High premium' : 'Very high premium';
+      const citySel = $('city');
+      [...new Set(data.map(d => d.city))].sort().forEach(c => {
+        const o=document.createElement('option'); o.value=c; o.textContent=c; citySel.appendChild(o);
+      });
+      let selected = null;
+
+      function filtered() {
+        const q=$('q').value.trim().toLowerCase(), city=$('city').value, gap=$('gap').value, sort=$('sort').value;
+        let arr=data.filter(d=>{
+          if(q && !(d.domain.toLowerCase().includes(q)||d.tld.toLowerCase().includes(q))) return false;
+          if(city && d.city!==city) return false;
+          if(gap==='under' && !(d.ratio<=1)) return false;
+          if(gap==='2' && !(d.ratio>1 && d.ratio<=2)) return false;
+          if(gap==='5' && !(d.ratio>2 && d.ratio<=5)) return false;
+          if(gap==='10' && !(d.ratio>5 && d.ratio<=10)) return false;
+          if(gap==='high' && !(d.ratio>10)) return false;
+          return true;
+        });
+        const sorts={
+          ratioDesc:(a,b)=>b.ratio-a.ratio, ratioAsc:(a,b)=>a.ratio-b.ratio,
+          scoreDesc:(a,b)=>b.score-a.score, askDesc:(a,b)=>b.ask-a.ask,
+          domain:(a,b)=>a.domain.localeCompare(b.domain)
+        };
+        arr.sort(sorts[sort]); return arr;
+      }
+
+      function showDetail(d) {
+        selected=d.domain;
+        const annualPct=d.lease/d.ask*100;
+        const text = d.ratio <= 1
+          ? 'Austin’s ask is at or below this model’s midpoint. This is a candidate for buyer-pool research because pricing is not the obvious obstacle.'
+          : d.ratio <= 5
+          ? 'The ask carries a premium over the model, but it is still within a range worth testing against real local buyer demand.'
+          : d.ratio <= 10
+          ? 'The ask is materially above the model. Buyer-pool size and strategic marketing value would need to justify the premium.'
+          : 'The ask is far above this model’s midpoint. This should be treated as a high-priority pricing-validation case before investing heavily in outreach.';
+        $('detail').innerHTML = `
+          <div class="muted">${d.city}, ${d.region}</div>
+          <h3>${d.domain}</h3>
+          <span class="pill">${d.level} · score ${d.score}</span>
+          <div class="grid2">
+            <div class="metric"><span class="muted">Austin ask</span><b>${money(d.ask)}</b></div>
+            <div class="metric"><span class="muted">NamesLink range</span><b>${d.range}</b></div>
+            <div class="metric"><span class="muted">Ask / midpoint</span><b>${d.ratio.toFixed(2)}×</b></div>
+            <div class="metric"><span class="muted">33% commission</span><b>${money(d.commission)}</b></div>
+            <div class="metric"><span class="muted">Annual lease</span><b>${money(d.lease)}</b></div>
+            <div class="metric"><span class="muted">Lease / purchase</span><b>${annualPct.toFixed(1)}%</b></div>
+          </div>
+          <div class="lens">
+            <strong>${ratioLabel(d.ratio)}</strong>
+            <div class="muted">${text}</div>
+          </div>
+          <div class="foot">Next evidence layer: actual buyer count, current-domain quality, SEO/AEO opportunity, and comparable sales. NamesLink alone should not decide whether a domain is fairly priced.</div>`;
+        render();
+      }
+
+      function render() {
+        const arr=filtered(), tbody=$('rows'); tbody.innerHTML='';
+        $('empty').hidden=arr.length>0;
+        arr.forEach(d=>{
+          const tr=document.createElement('tr'); tr.tabIndex=0; tr.setAttribute('aria-selected',String(d.domain===selected));
+          const pct=Math.min(100,Math.log10(Math.max(1,d.ratio))*50);
+          tr.innerHTML=`<td><b>${d.domain}</b><div class="muted">.${d.tld}</div></td>
+            <td>${money(d.ask)}</td><td>${d.range}</td>
+            <td><div><b>${d.ratio.toFixed(1)}×</b> <span class="muted">${ratioLabel(d.ratio)}</span></div>
+            <div class="ratioBar" aria-hidden="true"><span style="width:${pct}%"></span></div></td>
+            <td>${d.score}</td><td>${d.city}</td>`;
+          tr.addEventListener('click',()=>showDetail(d));
+          tr.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();showDetail(d);} });
+          tbody.appendChild(tr);
+        });
+        if(!selected && arr[0]) showDetail(arr[0]);
+      }
+
+      ['q','city','gap','sort'].forEach(id => $(id).addEventListener(id==='q'?'input':'change', render));
+      render();
+    })();
+  </script>
+</div>

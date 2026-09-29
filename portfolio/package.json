@@ -1,0 +1,5 @@
+{
+  "name": "domain-portfolio-pages", "private": true, "version": "0.1.0", "type": "module",
+  "scripts": { "build": "node scripts/build.mjs", "verify": "node scripts/verify.mjs" },
+  "devDependencies": { "@playwright/test": "1.63.0", "@axe-core/playwright": "4.13.0" }
+}

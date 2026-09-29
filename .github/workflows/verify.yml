@@ -1,0 +1,44 @@
+name: Verify
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: portfolio/package-lock.json
+      - run: npm ci
+        working-directory: portfolio
+      - run: npx playwright install --with-deps --only-shell chromium
+        if: runner.os == 'Linux'
+        working-directory: portfolio
+      - run: npx playwright install --only-shell chromium
+        if: runner.os == 'Windows'
+        working-directory: portfolio
+      - name: Canonical portfolio verification
+        run: python scripts/verify_project.py --project .
+        env:
+          PYTHONIOENCODING: utf-8
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: portfolio-${{ matrix.os }}
+          path: output/portfolio/
+          if-no-files-found: ignore
