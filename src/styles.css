@@ -336,10 +336,9 @@ h2 {
 }
 .domain-controls {
   display: grid;
-  grid-template-columns: minmax(180px, 1.25fr) minmax(130px, 1fr) minmax(
-      115px,
-      0.8fr
-    ) auto;
+  grid-template-columns:
+    minmax(180px, 1.25fr) minmax(130px, 1fr) minmax(115px, 0.8fr)
+    auto;
   gap: 20px;
   align-items: center;
   padding: 24px 22px;
@@ -761,7 +760,7 @@ h2 {
 }
 .draft-warning {
   font-size: 10px;
-  color: #8a7547;
+  color: #705b32;
   margin-bottom: 18px;
 }
 .draft-panel label {
@@ -1171,4 +1170,11 @@ dialog > .primary {
 .nav-active > span {
   color: #52634f;
   opacity: 1;
+}
+.empty-state,
+.inspector-placeholder,
+.empty-state > span,
+.mini-workflow,
+.draft-panel label {
+  color: #52634f;
 }

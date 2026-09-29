@@ -658,11 +658,12 @@ export default function App() {
       </div>
       <dialog
         ref={aboutDialog}
+        aria-labelledby="demo-dialog-title"
         onCancel={() => setAbout(false)}
         onClose={() => setAbout(false)}
       >
         <div className="dialog-heading">
-          <h2>Demo today. A path to a real app.</h2>
+          <h2 id="demo-dialog-title">Demo today. A path to a real app.</h2>
           <button
             className="icon-button"
             aria-label="Close demo information"

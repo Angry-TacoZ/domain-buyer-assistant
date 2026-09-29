@@ -11,7 +11,7 @@
 | Observability/support | pass | Safe status/error UI, browser-error checks, exported evidence, reproducible commands |
 | Delivery/reproducibility | not verified | Lockfile, Node 24, copied canonical verifier, pinned Actions; hosted CI and Pages pending |
 | Performance/capacity | pass | Fixed six-record examples; bounded draft size; static build; no large-data or live latency claim |
-| UX/accessibility | pass | Rendered desktop/mobile inspection; mouse/touch/keyboard workflow; automated WCAG A/AA evidence-screen checks; not a full audit |
+| UX/accessibility | pass | Rendered desktop/mobile inspection; mouse/touch/keyboard workflow; automated WCAG A/AA initial/evidence/draft/dialog checks; not a full audit |
 | External services/cost | not applicable | No paid APIs or live research; zero model calls in evals; locally bundled fonts |
 | Documentation/operations | pass | Setup, simulation limits, export/reset, rollout/rollback, real-app boundary |
 

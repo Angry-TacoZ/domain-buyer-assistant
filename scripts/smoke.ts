@@ -1,4 +1,4 @@
-import { chromium } from "@playwright/test";
+import { chromium, type Page } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { setTimeout as delay } from "node:timers/promises";
@@ -21,6 +21,19 @@ const root = "http://127.0.0.1:4179/domain-buyer-assistant/";
 mkdirSync("output/playwright", { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const logs: string[] = [];
+async function assertAccessible(page: Page) {
+  const accessibility = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+    .analyze();
+  assert.deepEqual(
+    accessibility.violations.map((item) => ({
+      id: item.id,
+      nodes: item.nodes.map((node) => node.target),
+    })),
+    [],
+    "Accessibility violations",
+  );
+}
 try {
   let ready = false;
   for (let count = 0; count < 40; count++) {
@@ -54,6 +67,7 @@ try {
     });
     await page.goto(root);
     await page.evaluate(() => document.fonts.ready);
+    await assertAccessible(page);
     const activate = async (name: string) => {
       const button = page.getByRole("button", { name, exact: true });
       if (mobile) await button.tap();
@@ -65,6 +79,7 @@ try {
       .waitFor();
     await activate("Add to shortlist");
     await activate("Prepare outreach draft");
+    await assertAccessible(page);
     await page
       .getByLabel("Review and edit before outreach")
       .fill("Reviewed simulated draft. No message sent.");
@@ -80,17 +95,7 @@ try {
       "Reviewed simulated draft. No message sent.",
     );
     await page.getByRole("button", { name: "Evidence & fit" }).click();
-    const accessibility = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-      .analyze();
-    assert.deepEqual(
-      accessibility.violations.map((item) => ({
-        id: item.id,
-        nodes: item.nodes.map((node) => node.target),
-      })),
-      [],
-      "Accessibility violations",
-    );
+    await assertAccessible(page);
     await page.screenshot({
       path: `output/playwright/${mobile ? "mobile" : "desktop"}.png`,
       fullPage: true,
@@ -137,6 +142,7 @@ try {
     );
     await page.getByRole("button", { name: "About this demo" }).click();
     assert(await page.getByRole("dialog").isVisible());
+    await assertAccessible(page);
     await page.keyboard.press("Escape");
     assert(!(await page.getByRole("dialog").isVisible()));
     await context.close();

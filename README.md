@@ -29,7 +29,7 @@ Use Node 24. `npm ci`, `npx playwright install chromium`, then `npm run dev`. Op
 
 `npm run verify` runs lint, deterministic unit tests, the fixed eligibility evaluation, typecheck/build, and browser smoke checks. `npm audit --audit-level=high` checks dependencies. On the original workspace, run the canonical `scripts/verify-project.cmd --project <project-root>`; CI runs its included copy, `python scripts/verify_project.py --project .`, against `.codex/verify.json` on Ubuntu and Windows. Install Chromium with `--with-deps` on clean Linux machines. No paid APIs or production mutations run in verification.
 
-Browser checks cover mouse/desktop, touch/mobile, keyboard-only shortlisting/drafting/export, excluded candidates, empty research, provider failure/recovery, domain switching, overflow, console errors, and automated WCAG A/AA rules on the evidence screen. Screenshots and smoke results are in `output/playwright/`. Automated accessibility checks do not replace a full manual accessibility audit.
+Browser checks cover mouse/desktop, touch/mobile, keyboard-only shortlisting/drafting/export, excluded candidates, empty research, provider failure/recovery, domain switching, overflow, console errors, and automated WCAG A/AA rules on the initial, evidence, draft, and dialog screens. Screenshots and smoke results are in `output/playwright/`. Automated accessibility checks do not replace a full manual accessibility audit.
 
 Reviewed visual snapshots are kept in `docs/screenshots/`. Test outputs are ignored so routine verification does not modify committed evidence. Set `PYTHONIOENCODING=utf-8` before running the canonical verifier from a Windows terminal that defaults to a legacy encoding.
 
