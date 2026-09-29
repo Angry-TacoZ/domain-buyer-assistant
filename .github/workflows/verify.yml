@@ -24,7 +24,12 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps --only-shell chromium
+      - name: Install browser and Linux dependencies
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps --only-shell chromium
+      - name: Install Windows browser
+        if: runner.os == 'Windows'
+        run: npx playwright install --only-shell chromium
       - name: Canonical project verification
         run: python scripts/verify_project.py --project .
         env:
