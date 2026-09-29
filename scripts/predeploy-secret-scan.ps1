@@ -38,7 +38,8 @@ $textExtensions = @(
 
 $files = Get-ChildItem -LiteralPath $root -Recurse -File -ErrorAction SilentlyContinue |
   Where-Object {
-    $full = $_.FullName
+    # Normalize separators so dependency exclusions also work on Linux CI.
+    $full = $_.FullName.Replace([char]47, [char]92)
     foreach ($dir in $blockedDirs) {
       if ($full.Contains($dir)) {
         return $false
