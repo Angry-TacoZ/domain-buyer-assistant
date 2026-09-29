@@ -61,6 +61,7 @@ try {
       hasTouch: mobile,
     });
     const page = await context.newPage();
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     page.on("pageerror", (error) => logs.push(error.message));
     page.on("console", (message) => {
       if (message.type() === "error") logs.push(message.text());
@@ -77,12 +78,49 @@ try {
     await page
       .getByRole("button", { name: /Cedar & Stone Plumbing/ })
       .waitFor();
+    await activate("View sample drafts");
+    await page.screenshot({
+      path: `output/playwright/drafts-${mobile ? "mobile" : "desktop"}.png`,
+      fullPage: true,
+    });
+    assert(
+      (
+        await page.getByLabel("Review and edit before outreach").inputValue()
+      ).startsWith("Subject:"),
+    );
+    await page.getByLabel("Sample format").selectOption("contact-form");
+    assert(
+      (
+        await page.getByLabel("Review and edit before outreach").inputValue()
+      ).includes("who would be the best person"),
+    );
+    await page
+      .getByLabel("Review and edit before outreach")
+      .fill("Edited contact-form example.");
+    await page.getByLabel("Sample format").selectOption("short-introduction");
+    assert(
+      (
+        await page.getByLabel("Review and edit before outreach").inputValue()
+      ).includes("open to a quick look"),
+    );
+    await page.getByLabel("Sample format").selectOption("contact-form");
+    assert.equal(
+      await page.getByLabel("Review and edit before outreach").inputValue(),
+      "Edited contact-form example.",
+    );
+    await page.getByRole("button", { name: "Evidence & fit" }).click();
     await activate("Add to shortlist");
     await activate("Prepare outreach draft");
     await assertAccessible(page);
     await page
       .getByLabel("Review and edit before outreach")
       .fill("Reviewed simulated draft. No message sent.");
+    await activate("Copy draft");
+    await page.waitForFunction(
+      async () =>
+        (await navigator.clipboard.readText()) ===
+        "Reviewed simulated draft. No message sent.",
+    );
     const download = page.waitForEvent("download");
     await page.getByRole("button", { name: /Export shortlist/ }).click();
     const artifact = await download;

@@ -1,8 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { assess, makeDraft, makePacket } from "./policy";
+import { assess, draftFormats, makeDraft, makePacket } from "./policy";
 import { domains, fixtureProspects } from "./fixtures";
 import { fixtureProvider } from "./provider";
 describe("review safety", () => {
+  it("provides distinct grounded samples for both domains without bypassing exclusions", () => {
+    for (const domain of domains) {
+      const results = assess(domain, fixtureProspects(domain));
+      const samples = draftFormats.map((format) =>
+        makeDraft(domain, results[0], format.id),
+      );
+      expect(new Set(samples).size).toBe(3);
+      for (const format of draftFormats) {
+        const draft = makeDraft(domain, results[0], format.id);
+        expect(draft).toContain(domain.name);
+        expect(draft).toContain(results[0].prospect.name);
+        expect(draft).toContain(
+          "no guarantee of traffic, search rankings, or leads",
+        );
+        expect(draft).toContain("final terms would need confirmation");
+        expect(() => makeDraft(domain, results[2], format.id)).toThrow();
+      }
+    }
+  });
   it("retains exclusion reasons and evidence without treating missing evidence as qualified", () => {
     const result = assess(domains[0], fixtureProspects(domains[0]));
     expect(result.map((item) => item.disposition)).toEqual([

@@ -763,6 +763,20 @@ h2 {
   color: #705b32;
   margin-bottom: 18px;
 }
+.draft-format {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dce4d3;
+  border-radius: 5px;
+  background: white;
+  color: #34483b;
+}
+.draft-panel .format-description {
+  margin: 10px 0 18px;
+  font-size: 11px;
+  color: #52634f;
+  line-height: 1.7;
+}
 .draft-panel label {
   font-size: 11px;
   color: #6d8061;

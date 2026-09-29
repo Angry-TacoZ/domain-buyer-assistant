@@ -19,7 +19,13 @@ import {
 } from "lucide-react";
 import type { Assessment, ResearchRequest } from "./contracts";
 import { domains } from "./fixtures";
-import { assess, makeDraft, makePacket } from "./policy";
+import {
+  assess,
+  draftFormats,
+  makeDraft,
+  makePacket,
+  type DraftFormat,
+} from "./policy";
 import { fixtureProvider } from "./provider";
 
 const money = (amount: number) =>
@@ -41,6 +47,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string>();
   const [shortlist, setShortlist] = useState<string[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [formats, setFormats] = useState<Record<string, DraftFormat>>({});
   const [view, setView] = useState<View>("eligible");
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
@@ -67,6 +74,7 @@ export default function App() {
   );
   const selected = results.find((item) => item.prospect.id === selectedId);
   function clearResearch() {
+    setFormats({});
     controller.current?.abort();
     setResults([]);
     setShortlist([]);
@@ -80,6 +88,7 @@ export default function App() {
     setDetailTab("evidence");
   }
   async function research() {
+    setFormats({});
     controller.current?.abort();
     const next = new AbortController();
     controller.current = next;
@@ -128,12 +137,21 @@ export default function App() {
       `${item.prospect.name} ${removing ? "removed from" : "added to"} your shortlist.`,
     );
   }
+  function draftKey(item: Assessment) {
+    return `${item.prospect.id}:${formats[item.prospect.id] ?? "email"}`;
+  }
+  function currentDraft(item: Assessment) {
+    return (
+      drafts[draftKey(item)] ??
+      makeDraft(domain, item, formats[item.prospect.id] ?? "email")
+    );
+  }
   function exportPacket() {
     const candidates = results
       .filter((item) => shortlist.includes(item.prospect.id))
       .map((assessment) => ({
         assessment,
-        draft: drafts[assessment.prospect.id] ?? makeDraft(domain, assessment),
+        draft: currentDraft(assessment),
         status: "draft-not-sent" as const,
       }));
     const blob = new Blob(
@@ -153,9 +171,7 @@ export default function App() {
   async function copyDraft() {
     if (!selected || selected.disposition !== "eligible") return;
     try {
-      await navigator.clipboard.writeText(
-        drafts[selected.prospect.id] ?? makeDraft(domain, selected),
-      );
+      await navigator.clipboard.writeText(currentDraft(selected));
       setNotice("Draft copied. Review it before any real outreach.");
     } catch {
       setNotice(
@@ -526,10 +542,7 @@ export default function App() {
                       Evidence & fit
                     </button>
                     <button
-                      disabled={
-                        selected.disposition !== "eligible" ||
-                        !shortlist.includes(selected.prospect.id)
-                      }
+                      disabled={selected.disposition !== "eligible"}
                       className={detailTab === "draft" ? "active" : ""}
                       onClick={() => setDetailTab("draft")}
                     >
@@ -602,34 +615,63 @@ export default function App() {
                             ? "Remove from shortlist"
                             : "Add to shortlist"}
                       </button>
-                      {shortlist.includes(selected.prospect.id) && (
+                      {selected.disposition === "eligible" && (
                         <button
                           className="text-button draft-action"
                           onClick={() => setDetailTab("draft")}
                         >
-                          Prepare outreach draft <ArrowRight size={14} />
+                          {shortlist.includes(selected.prospect.id)
+                            ? "Prepare outreach draft"
+                            : "View sample drafts"}{" "}
+                          <ArrowRight size={14} />
                         </button>
                       )}
                     </>
                   ) : (
                     <div className="draft-panel">
                       <div className="draft-warning">
-                        Template draft · not sent
+                        Sample outreach · fictional personalization · not sent
                       </div>
+                      <label htmlFor="draft-format">Sample format</label>
+                      <select
+                        id="draft-format"
+                        className="draft-format"
+                        value={formats[selected.prospect.id] ?? "email"}
+                        onChange={(event) =>
+                          setFormats((previous) => ({
+                            ...previous,
+                            [selected.prospect.id]: event.target
+                              .value as DraftFormat,
+                          }))
+                        }
+                      >
+                        {draftFormats.map((format) => (
+                          <option key={format.id} value={format.id}>
+                            {format.label}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="format-description">
+                        {
+                          draftFormats.find(
+                            (format) =>
+                              format.id ===
+                              (formats[selected.prospect.id] ?? "email"),
+                          )!.description
+                        }{" "}
+                        Edits are kept separately for each format.
+                      </p>
                       <label htmlFor="draft">
                         Review and edit before outreach
                       </label>
                       <textarea
                         id="draft"
                         maxLength={6000}
-                        value={
-                          drafts[selected.prospect.id] ??
-                          makeDraft(domain, selected)
-                        }
+                        value={currentDraft(selected)}
                         onChange={(event) =>
                           setDrafts((previous) => ({
                             ...previous,
-                            [selected.prospect.id]: event.target.value,
+                            [draftKey(selected)]: event.target.value,
                           }))
                         }
                       />

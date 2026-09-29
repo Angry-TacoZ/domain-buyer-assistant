@@ -35,6 +35,8 @@ Reviewed visual snapshots are kept in `docs/screenshots/`. Test outputs are igno
 
 ## Research and simulation boundary
 
+After example research, select an eligible business and open **View sample drafts** or **Outreach draft**. Choose Email, Contact form, or Short introduction. Each format has a populated sample; edits are kept separately per business and format during the session. Copy uses the selected format. Shortlist export includes that business's currently selected draft. Excluded records cannot generate samples. All text is fictional personalization, not model output or a sent message.
+
 All six businesses per domain, sources, and contact-history flags are fictional. Prices are illustrative snapshots, not current offers. Research uses a cancellable fixture provider; draft text is a deterministic template, not model output. No contacts, outreach responses, demand estimates, or conversion claims are invented. Changes live in memory only; refresh clears the session. Exported JSON contains example evidence, assessment reasons, edited or default drafts, explicit simulation mode, and unsent status. Treat edited drafts as unverified user text.
 
 See [evaluation methodology and results](evals/README.md) and [the real-app implementation path](docs/real-app-path.md). The provider/result contract and review UI are reusable; live acquisition, verified citations, authoritative contact history, auth, persistence, and cost controls are not implemented.
