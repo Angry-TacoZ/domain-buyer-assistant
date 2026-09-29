@@ -1,0 +1,86 @@
+{
+  "version": "baseline-category-only",
+  "scope": "Synthetic deterministic eligibility; not buyer interest, AI quality, or sales performance",
+  "total": 12,
+  "passed": 4,
+  "failed": 8,
+  "eligiblePrecision": 0.2,
+  "unsafeEligible": 8,
+  "elapsedMs": 0.15,
+  "modelCalls": 0,
+  "apiCostUsd": 0,
+  "records": [
+    {
+      "id": "supported",
+      "expected": "eligible",
+      "predicted": "eligible",
+      "pass": true
+    },
+    {
+      "id": "marketing-context",
+      "expected": "eligible",
+      "predicted": "eligible",
+      "pass": true
+    },
+    {
+      "id": "wrong-market",
+      "expected": "excluded",
+      "predicted": "eligible",
+      "pass": false
+    },
+    {
+      "id": "wrong-service",
+      "expected": "excluded",
+      "predicted": "excluded",
+      "pass": true
+    },
+    {
+      "id": "contacted",
+      "expected": "excluded",
+      "predicted": "eligible",
+      "pass": false
+    },
+    {
+      "id": "no-evidence",
+      "expected": "needs-review",
+      "predicted": "eligible",
+      "pass": false
+    },
+    {
+      "id": "missing-market-evidence",
+      "expected": "needs-review",
+      "predicted": "eligible",
+      "pass": false
+    },
+    {
+      "id": "missing-service-evidence",
+      "expected": "needs-review",
+      "predicted": "eligible",
+      "pass": false
+    },
+    {
+      "id": "empty-excerpts",
+      "expected": "needs-review",
+      "predicted": "eligible",
+      "pass": false
+    },
+    {
+      "id": "only-marketing-evidence",
+      "expected": "needs-review",
+      "predicted": "eligible",
+      "pass": false
+    },
+    {
+      "id": "duplicate-record",
+      "expected": "excluded",
+      "predicted": "eligible",
+      "pass": false
+    },
+    {
+      "id": "multiple-exclusions",
+      "expected": "excluded",
+      "predicted": "excluded",
+      "pass": true
+    }
+  ]
+}
