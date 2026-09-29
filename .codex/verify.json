@@ -1,0 +1,9 @@
+{
+  "version": 1, "scope": "public-low-risk",
+  "checks": [
+    { "name": "Build and validate supplied snapshot", "command": "node", "arguments": ["portfolio/scripts/build.mjs"] },
+    { "name": "Portfolio browser verification", "command": "node", "arguments": ["portfolio/scripts/verify.mjs"] },
+    { "name": "Portfolio dependency audit", "command": "npm", "arguments": ["audit", "--prefix", "portfolio", "--audit-level=high"] }
+  ],
+  "secret_scan": true
+}
