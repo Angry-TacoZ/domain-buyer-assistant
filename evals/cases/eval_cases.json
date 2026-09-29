@@ -1,0 +1,100 @@
+[
+  {
+    "id": "supported",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": ["service", "market"],
+    "contacted": false,
+    "expected": "eligible"
+  },
+  {
+    "id": "marketing-context",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": ["service", "market", "marketing"],
+    "contacted": false,
+    "expected": "eligible"
+  },
+  {
+    "id": "wrong-market",
+    "market": "Branson",
+    "category": "plumbing",
+    "kinds": ["service", "market"],
+    "contacted": false,
+    "expected": "excluded"
+  },
+  {
+    "id": "wrong-service",
+    "market": "Des Moines",
+    "category": "vacations",
+    "kinds": ["service", "market"],
+    "contacted": false,
+    "expected": "excluded"
+  },
+  {
+    "id": "contacted",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": ["service", "market"],
+    "contacted": true,
+    "expected": "excluded"
+  },
+  {
+    "id": "no-evidence",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": [],
+    "contacted": false,
+    "expected": "needs-review"
+  },
+  {
+    "id": "missing-market-evidence",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": ["service"],
+    "contacted": false,
+    "expected": "needs-review"
+  },
+  {
+    "id": "missing-service-evidence",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": ["market"],
+    "contacted": false,
+    "expected": "needs-review"
+  },
+  {
+    "id": "empty-excerpts",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": ["service", "market"],
+    "emptyExcerpt": true,
+    "contacted": false,
+    "expected": "needs-review"
+  },
+  {
+    "id": "only-marketing-evidence",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": ["marketing"],
+    "contacted": false,
+    "expected": "needs-review"
+  },
+  {
+    "id": "duplicate-record",
+    "market": "Des Moines",
+    "category": "plumbing",
+    "kinds": ["service", "market"],
+    "duplicate": true,
+    "contacted": false,
+    "expected": "excluded"
+  },
+  {
+    "id": "multiple-exclusions",
+    "market": "Branson",
+    "category": "vacations",
+    "kinds": [],
+    "contacted": true,
+    "expected": "excluded"
+  }
+]

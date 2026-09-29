@@ -1,0 +1,10 @@
+{
+  "desktop": "pass",
+  "mobileTouch": "pass",
+  "keyboard": "pass",
+  "export": "pass",
+  "empty": "pass",
+  "failureRetry": "pass",
+  "domainSwitch": "pass",
+  "browserErrors": []
+}

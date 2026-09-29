@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "scope": "public-low-risk",
+  "checks": [
+    { "name": "lint", "command": "npm", "arguments": ["run", "lint"] },
+    { "name": "unit tests", "command": "npm", "arguments": ["run", "test"] },
+    {
+      "name": "eligibility evaluation",
+      "command": "npm",
+      "arguments": ["run", "eval"]
+    },
+    {
+      "name": "typecheck and build",
+      "command": "npm",
+      "arguments": ["run", "build"]
+    },
+    {
+      "name": "browser smoke",
+      "command": "npm",
+      "arguments": ["run", "smoke"]
+    },
+    {
+      "name": "dependency audit",
+      "command": "npm",
+      "arguments": ["audit", "--audit-level=high"]
+    }
+  ],
+  "secret_scan": true
+}
